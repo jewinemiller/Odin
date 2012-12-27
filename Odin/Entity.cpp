@@ -1,13 +1,22 @@
 
 #include "Entity.h"
 
+/*Entity Class
+*The entity represents something drawn to the screen
+*This can include tiles, tile types, platforms, terrain, etc.
+*/
+
+//Empty constructor
+//Fills with default values
 Entity::Entity(){
 	this->X = 0;
 	this->Y = 0;
+	//Name that can be used for display/printing purposes. 
 	this->name = "noname";
+	//Numeric designation (Used for displaying/printing purposes)
 	this->numDesignation = 0; 
 }
-
+//Parameterized Constructor. 
 Entity::Entity(string name, int X, int Y, int designation){
 	this->name = name;
 	this->X = X;

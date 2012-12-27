@@ -32,17 +32,22 @@ vector<Entity> Manager::getEntities(){
 	return this->entities; 
 }
 
+//Remove the entire list of entities.
 void Manager::clearEntities(){
 	this->entities.clear();
 }
 
+//Clear a single entity from the manager's list of entities. 
 void Manager::clearEntity(int x, int y){
-
+	//Iterator to move through the entities. 
 	vector<Entity>::iterator it = entities.begin();
+	//While there are still entities
 	while (it != entities.end()) {
+		//Remove the entity that has the x and y passed in
 		if (it->getX() == x && it->getY() == y) {
 		 it = entities.erase(it);
 		}
+		//Otherwise, iterate through the list. 
 		 else {
 			 ++it;
 		}

@@ -71,6 +71,9 @@ void EditorSurface::DrawGrid(SDL_Surface* screen){
 	}
 }
 
+//Generate a list of tiles.
+//This starts by filling all tiles with a value of 0
+//0 represents the default space.
 void EditorSurface::generateTiles(){
 	manager.tiles.clear();
 	for(int i = 0; i < ScreenHeight; i+= BoxHeight){
@@ -96,6 +99,7 @@ Manager EditorSurface::getManager(){
 	return manager; 
 }
 
+//Erase a single entity from the screen
 void EditorSurface::eraseEntity(int x, int y){
 
 	manager.tiles[y/manager.tileH][x/manager.tileW] = 0;

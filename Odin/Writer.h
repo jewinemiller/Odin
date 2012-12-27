@@ -7,7 +7,7 @@ using namespace std;
 class Writer{
 public:
 	Writer(EditorSurface* e);
-	bool write(string fileName);
+	bool writeInteger(string fileName);
 
 private:
 	EditorSurface* editor; 
