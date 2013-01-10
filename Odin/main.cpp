@@ -1,13 +1,16 @@
 #include "SDL.h"
+#include "SDL_thread.h"
 #include "SDL_image.h"
 #include "Validator.h"
 #include "Writer.h"
 #include "PreferenceManager.h"
 #include <string>
+#include "DataStream.h"
 
 using namespace std;
  const SDL_VideoInfo* screenInfo;
 
+ SDL_Thread *thread = NULL;
 
 //Title of the Window
 const char* WINDOW_TITLE = "Odin";
@@ -17,7 +20,7 @@ EditorSurface odinSurface;
 Validator validate;  
 Writer writer(&odinSurface);
 PreferenceManager prefMan; 
-
+DataStream stream("comm.temp");
 bool drawPopup = false;
 
 //Run and Draw Functions
@@ -36,8 +39,19 @@ int tileSpawned = 1;
 int maxTiles = 5; 
 Uint32 color = 0x111111;
 
+
+int editorThread(void* data){
+	system("OdinGUI.exe");
+	return 0;
+}
+
 int main(int argc, char **argv)
 {
+	/*Gtk::Main main_obj(argc, argv);
+	Gtk::Window dispWindow;
+	dispWindow.set_default_size(1280, 720);
+	main_obj.run(dispWindow);*/
+
 	//Initialize the editor
 	initialize(); 
 	//Run the Editor
@@ -50,6 +64,7 @@ int main(int argc, char **argv)
 SDL_Surface* screen;
 
 void initialize(){
+	
 	//Initialize Everything
 	SDL_Init( SDL_INIT_EVERYTHING);
 	screenInfo = SDL_GetVideoInfo();
@@ -66,10 +81,15 @@ void initialize(){
 	odinSurface.SetGridDimensions(prefMan.boxWidth, prefMan.boxHeight);
 	//Draw the screen for the first time. 
 	draw(screen);
+
+	thread = SDL_CreateThread(editorThread, NULL);
+	
 }
 
 //Whether or not the editor should be running
 bool editorRunning = true;
+
+bool isPainting = false; 
 
 void run(){
 	//An event in SDL Land. This will be intercepted when it changes.
@@ -93,7 +113,7 @@ void run(){
 				if(event.key.keysym.sym == SDLK_ESCAPE){
 					//If the write is successful, exit the program.
 					//This will be changed later. 
-					if(writer.writeInteger(prefMan.savePath)){
+					if(writer.writeInteger(stream.output_path)){
 						editorRunning = false;
 					}
 					
@@ -129,19 +149,7 @@ void run(){
 			if(event.type == SDL_MOUSEBUTTONDOWN){
 				isDrawing = true; 
 				if(event.button.button == SDL_BUTTON_LEFT){
-					//Get the X anxd Y of the mouse. 
-					int x,y;
-					SDL_GetMouseState(&x, &y);
-					//Change the x and the y to valid spawning positions. 
-					x = validate.validatePosition(x, odinSurface.GetGridWidth());
-					y = validate.validatePosition(y, odinSurface.GetGridHeight());
-					//Create an entity in the x and y position that have been validated with a name of "temp"
-					//Note, this code will be going away at some point to allow for dynamic naming.
-					Entity e("temp", x, y, tileSpawned);
-					e.color = color;
-					//Add the entitiy to the surface and, by extension, its manager. 
-					odinSurface.addEntity(e);
-					
+					isPainting = true;
 				}
 				//If the right mouse button is pressed, remove the selected entity from the screen
 				else if(event.button.button == SDL_BUTTON_RIGHT){
@@ -155,7 +163,38 @@ void run(){
 					odinSurface.eraseEntity(x, y); 
 				}
 			}
+			else if(event.type == SDL_MOUSEBUTTONUP){
+				if(event.button.button == SDL_BUTTON_LEFT){
+					isPainting = false; 
+				}
+			}
 		}
+
+		if(isPainting){
+			//Get the X anxd Y of the mouse. 
+					int x,y;
+					SDL_GetMouseState(&x, &y);
+					//Change the x and the y to valid spawning positions. 
+					x = validate.validatePosition(x, odinSurface.GetGridWidth());
+					y = validate.validatePosition(y, odinSurface.GetGridHeight());
+					//Create an entity in the x and y position that have been validated with a name of "temp"
+					//Note, this code will be going away at some point to allow for dynamic naming.
+					Entity e("temp", x, y, tileSpawned);
+					e.color = color;
+					//Add the entitiy to the surface and, by extension, its manager. 
+					odinSurface.addEntity(e);
+					draw(screen);
+		}
+
+		if(stream.runStream()){
+			//editorRunning = !stream.should_quit;
+			if(stream.should_write){
+				if(writer.writeInteger(stream.output_path)){
+					
+				}
+			}
+		}
+
 		//Draw the editor.
 		//Drawing takes place after all logic. This enables what is drawn to be the most up-to-date information. 
 		if(isDrawing){

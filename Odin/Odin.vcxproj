@@ -67,6 +67,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="DataStream.cpp" />
     <ClCompile Include="EditorSurface.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="main.cpp" />
@@ -80,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="DataStream.h" />
     <ClInclude Include="EditorSurface.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Manager.h" />

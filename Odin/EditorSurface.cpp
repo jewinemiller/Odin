@@ -26,7 +26,19 @@ void EditorSurface::Draw(SDL_Surface* screen){
 }
 
 void EditorSurface::addEntity(Entity e){
-	manager.addEntity(e);
+	bool shouldAdd = true; 
+	if(manager.tiles[e.getY() / 20][e.getX() / 20] != 0){
+		shouldAdd = false; 
+	}
+	/*for(int i = 0; i < manager.getEntities().size(); i++){
+		if(e.getX() == manager.getEntity(i).getX() && e.getY() == manager.getEntity(i).getY()){
+			shouldAdd = false; 
+			break;
+		}
+	}*/
+	if(shouldAdd){
+		manager.addEntity(e);
+	}
 }
 
 //Set the dimensions of the screen.
